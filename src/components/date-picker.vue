@@ -64,7 +64,7 @@ export default {
         style: this.options.headStyle,
         date: "",
       },
-      calendarTitleArr: ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN "],
+      calendarTitleArr: ["一", "二", "三", "四", "五", "六", "日 "],
       time: { year, month, day },
       calendarList: [],
     };
@@ -81,7 +81,8 @@ export default {
         utils.getDate(this.time.year, this.time.month, this.time.day)
       );
       console.log(`date is ${year} ${month} ${day}`);
-      let currentFirstDay = utils.getDate(year, month, 1);
+      //根据`一部手机管
+      let currentFirstDay = utils.getDate(year, month, day);
       // 获取当前月第一天星期几
       let weekDay = currentFirstDay.getDay();
       let startTime = null;
@@ -93,20 +94,32 @@ export default {
       console.log(`startTime is ${startTime}`);
       let monthDayNum;
       console.log(`weekDay is ${weekDay}`);
-      if (weekDay == 5 || weekDay == 6 || weekDay == 0) {
+      if (weekDay == 6 || weekDay == 0) {
         monthDayNum = 42;
       } else {
         monthDayNum = 35;
       }
-      let date = new Date(startTime + 0 * 24 * 60 * 60 * 1000).getDate();
+      let dateDay = new Date(startTime + 0 * 24 * 60 * 60 * 1000).getDate();
+      let date = new Date(currentFirstDay);
+      date.setDate(date.getDate() + 30);
+      console.log(`dateDay is ${dateDay}`);
       console.log(`date is ${date}`);
       for (let i = 0; i < monthDayNum; i++) {
+        let itemMonth = month + 1;
+        let itemDay = new Date(startTime + i * 24 * 60 * 60 * 1000).getDate();
+        let itemDate = new Date(startTime + i * 24 * 60 * 60 * 1000);
+        let show = true;
+        if (itemDate > date) {
+          show = false;
+          monthDayNum -= 1;
+        }
         calendatArr.push({
           date: new Date(startTime + i * 24 * 60 * 60 * 1000),
           year: year,
-          month: month + 1,
-          day: new Date(startTime + i * 24 * 60 * 60 * 1000).getDate(),
+          month: itemMonth,
+          day: itemDay,
           clickDay: false,
+          show,
         });
       }
 
@@ -205,7 +218,7 @@ export default {
     .date-view {
       float: left;
       width: 14.285%;
-      height: 120px;
+      height: 60px;
       border-right: 1px solid #e4e7ea;
       border-bottom: 1px solid #e4e7ea;
       cursor: pointer;

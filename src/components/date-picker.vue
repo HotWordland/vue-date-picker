@@ -29,14 +29,11 @@
       >
         <span
           class="date-day"
-          :style="dayStyle"
           :class="[{ 'opacity-class': !isCurrentMonth(item.date) }]"
         >
           {{ item.day }}
         </span>
-        <span class="calendar-num">
-          {{ item.calendarNum }}
-        </span>
+        <span class="rate-num"> 56% </span>
       </li>
     </ul>
   </div>
@@ -64,7 +61,7 @@ export default {
         style: this.options.headStyle,
         date: "",
       },
-      calendarTitleArr: ["一", "二", "三", "四", "五", "六", "日 "],
+      calendarTitleArr: ["日", "一", "二", "三", "四", "五", "六"],
       time: { year, month, day },
       calendarList: [],
     };
@@ -82,19 +79,23 @@ export default {
       );
       console.log(`date is ${year} ${month} ${day}`);
       //根据`一部手机管
-      let currentFirstDay = utils.getDate(year, month, day);
+      let currentFirstDay = utils.getDate(year, month, 1);
       // 获取当前月第一天星期几
       let weekDay = currentFirstDay.getDay();
       let startTime = null;
       if (weekDay == 0) {
-        startTime = currentFirstDay - 6 * 24 * 60 * 60 * 1000;
+        /*
+        这里需要做运算 后面是基于startTime为number类型计算时间
+        如果这里直接是currentFirstDay的话startTime会是一个Date对象而不是Number
+        */
+        startTime = currentFirstDay - 0;
       } else {
-        startTime = currentFirstDay - (weekDay - 1) * 24 * 60 * 60 * 1000;
+        startTime = currentFirstDay - weekDay * 24 * 60 * 60 * 1000;
       }
       console.log(`startTime is ${startTime}`);
       let monthDayNum;
       console.log(`weekDay is ${weekDay}`);
-      if (weekDay == 6 || weekDay == 0) {
+      if (weekDay == 5 || weekDay == 6) {
         monthDayNum = 42;
       } else {
         monthDayNum = 35;
@@ -106,21 +107,27 @@ export default {
       console.log(`date is ${date}`);
       for (let i = 0; i < monthDayNum; i++) {
         let itemMonth = month + 1;
+        console.log(`startTime is ${startTime}`);
         let itemDay = new Date(startTime + i * 24 * 60 * 60 * 1000).getDate();
         let itemDate = new Date(startTime + i * 24 * 60 * 60 * 1000);
         let show = true;
-        if (itemDate > date) {
+        console.log(`itemDay is ${itemDay}`);
+        if (!(itemDate > date)) {
+          calendatArr.push({
+            date: new Date(startTime + i * 24 * 60 * 60 * 1000),
+            year: year,
+            month: itemMonth,
+            day: itemDay,
+            clickDay: false,
+            show,
+          });
+        } else {
           show = false;
-          monthDayNum -= 1;
+          // monthDayNum -= 1;
+          console.log(
+            `itemDate > date itemDate is ${itemDate} date is ${date} itemDay is ${itemDay}`
+          );
         }
-        calendatArr.push({
-          date: new Date(startTime + i * 24 * 60 * 60 * 1000),
-          year: year,
-          month: itemMonth,
-          day: itemDay,
-          clickDay: false,
-          show,
-        });
       }
 
       this.headOptions.date = `${utils.englishMonth(month)} ${year}`;
@@ -191,7 +198,7 @@ export default {
 
 <style lang="less">
 .cc-calendar {
-  padding: 23px 30px 30px;
+  // padding: 23px 30px 30px;
   width: 100%;
   height: 100%;
   background: #f9fafc;
@@ -214,20 +221,26 @@ export default {
   }
   .calendar-view {
     width: 100%;
-    border-left: 1px solid #e4e7ea;
+    border-left: 0px solid #e4e7ea;
     .date-view {
       float: left;
       width: 14.285%;
       height: 60px;
-      border-right: 1px solid #e4e7ea;
-      border-bottom: 1px solid #e4e7ea;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      border-right: 0px solid #e4e7ea;
+      border-bottom: 0px solid #e4e7ea;
+      text-align: center;
       cursor: pointer;
       .date-day {
-        padding: 8px 8px 0;
         display: block;
-        width: 100%;
+        width: 40px;
+        height: 40px;
         font-size: 14px;
-        color: #7f8794;
+        line-height: 40px;
+        color: #2d3457;
       }
       .calendar-num {
         margin-top: 6px;
@@ -236,6 +249,22 @@ export default {
         text-align: center;
         font-size: 30px;
         color: #424953;
+      }
+      .rate-num {
+        font-size: 11px;
+        color: #333;
+      }
+    }
+    .date-view.todayBg {
+      .date-day {
+        display: block;
+        width: 40px;
+        height: 40px;
+        font-size: 14px;
+        line-height: 40px;
+        color: #2d3457;
+        border-radius: 50%;
+        background: linear-gradient(0deg, #3abce9, #4385f3);
       }
     }
     .opacity-class {
